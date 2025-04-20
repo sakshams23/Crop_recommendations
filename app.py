@@ -1,67 +1,49 @@
-import numpy as np
-from flask import Flask, request, jsonify, render_template, url_for
+import streamlit as st
+
 import pickle
+from PIL import Image
 
-# Create Flask app
-app = Flask(__name__)
+LogReg_model=pickle.load(open('LogReg.pkl','rb'))
+DecisionTree_model=pickle.load(open('DecisionTree.pkl','rb'))
+NaiveBayes_model=pickle.load(open('NaiveBayes.pkl','rb'))
+RF_model=pickle.load(open('RF.pkl','rb'))
 
-# Load your trained model and scalers
-model = pickle.load(open('model.pkl', 'rb'))
-sc = pickle.load(open('standscaler.pkl', 'rb'))
-ms = pickle.load(open('minmaxscaler.pkl', 'rb'))
+def classify(answer):
+    return answer[0]+" is the best crop for cultivation in this condition."
 
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    # Extracting the form data
-    int_features = [float(x) for x in request.form.values()]
-    final_features = [np.array(int_features)]
-    
-    # Applying scalers: MinMaxScaler then StandardScaler
-    scaled_features = ms.transform(final_features)
-    final_scaled_features = sc.transform(scaled_features)
-    
-    # Making predictions
-    prediction = model.predict(final_scaled_features)
-    
-    # Dictionary to map the predicted class to a crop
-    crop_dict = {
-        1: "Rice", 2: "Maize", 3: "Jute", 4: "Cotton", 5: "Coconut",
-        6: "Papaya", 7: "Orange", 8: "Apple", 9: "Muskmelon", 10: "Watermelon",
-        11: "Grapes", 12: "Mango", 13: "Banana", 14: "Pomegranate",
-        15: "Lentil", 16: "Blackgram", 17: "Mungbean", 18: "Mothbeans",
-        19: "Pigeonpeas", 20: "Kidneybeans", 21: "Chickpea", 22: "Coffee"
-    }
-    
-    # Get the predicted crop
-    predicted_crop = crop_dict.get(prediction[0], "Unknown crop")
+def main():
+    st.title("(Crop Recommendation using ML and IOT)...")
+    image=Image.open('plant.jpg')
+    st.image(image)
+    html_temp = """
+    <div style="background-color:teal; padding:20px">
+    <h2 style="color:white;text-align:center;">Best crop for cultivation</h2>
+    </div>
+    """
 
-    # Return result to the same page
-    return render_template('index.html', prediction_text="Best crop for the input is: {}".format(predicted_crop))
+    st.markdown(html_temp, unsafe_allow_html=True)
+    activities=['Naive Bayes (Accuracy: 98.86%)','Logistic Regression (Accuracy: 90.68%)','Decision Tree (Accuracy: 90.68%)','Random Forest (Accuracy: 99.54%)']
+    option=st.sidebar.selectbox("Choose model?",activities)
+    st.subheader(option)
+    sn=st.slider('NITROGEN (N)', 0.0, 200.0)
+    sp=st.slider('PHOSPHOROUS (P)', 0.0, 200.0)
+    pk=st.slider('POTASSIUM (K)', 0.0, 200.0)
+    pt=st.slider('TEMPERATURE', 0.0, 50.0)
+    phu=st.slider('HUMIDITY', 0.0, 100.0)
+    pPh=st.slider('Ph', 0.0, 14.0)
+    pr=st.slider('RAINFALL', 0.0, 300.0)
+    inputs=[[sn,sp,pk,pt,phu,pPh,pr]]
+    if st.button('Classify'):
+        if option=='Logistic Regression':
+            st.success(classify(LogReg_model.predict(inputs)))
+        elif option=='Decision Tree':
+            st.success(classify(DecisionTree_model.predict(inputs)))
+        elif option=='Naive Bayes':
+            st.success(classify(NaiveBayes_model.predict(inputs)))
+        else:
+            st.success(classify(RF_model.predict(inputs)))   
 
-@app.route('/predict_api', methods=['POST'])
-def predict_api():
-    '''
-    For direct API calls through request
-    '''
-    data = request.get_json(force=True)
-    
-    # Convert data into a numpy array
-    features = [np.array(list(data.values()))]
-    
-    # Apply scalers
-    scaled_features = ms.transform(features)
-    final_scaled_features = sc.transform(scaled_features)
-    
-    # Predict using model
-    prediction = model.predict(final_scaled_features)
-    
-    # Return prediction result
-    output = prediction[0]
-    return jsonify(output)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__=='__main__':
+    main()
