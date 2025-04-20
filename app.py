@@ -13,14 +13,10 @@ def classify(answer):
 
 def main():
     st.title("(Crop Recommendation using ML and IOT)...")
-    html_temp = """
-    <div style="background-color:teal; padding:20px">
-    <h2 style="color:white;text-align:center;">Best crop for cultivation</h2>
-    </div>
-    """
+    
 
     st.markdown(html_temp, unsafe_allow_html=True)
-    activities=['Naive Bayes (Accuracy: 98.86%)','Logistic Regression (Accuracy: 90.68%)','Decision Tree (Accuracy: 90.68%)','Random Forest (Accuracy: 99.54%)']
+    activities=['Naive Bayes (Accuracy: 98.86%)','Logistic Regression (Accuracy: 90.68%)','SVM (Accuracy: 97.72%)','Random Forest (Accuracy: 99.54%)']
     option=st.sidebar.selectbox("Choose model?",activities)
     st.subheader(option)
     sn=st.slider('NITROGEN (N)', 0.0, 200.0)
