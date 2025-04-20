@@ -12,7 +12,7 @@ def classify(answer):
 
 
 def main():
-    st.title("(Crop Recommendation using ML and IOT)...")
+    st.title("Crop Recommendation using ML and IOT")
     
 
     activities=['Naive Bayes (Accuracy: 98.86%)','Logistic Regression (Accuracy: 90.68%)','SVM (Accuracy: 97.72%)','Random Forest (Accuracy: 99.54%)']
