@@ -15,7 +15,6 @@ def main():
     st.title("(Crop Recommendation using ML and IOT)...")
     
 
-    st.markdown(html_temp, unsafe_allow_html=True)
     activities=['Naive Bayes (Accuracy: 98.86%)','Logistic Regression (Accuracy: 90.68%)','SVM (Accuracy: 97.72%)','Random Forest (Accuracy: 99.54%)']
     option=st.sidebar.selectbox("Choose model?",activities)
     st.subheader(option)
