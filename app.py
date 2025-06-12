@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 from PIL import Image
 
-LogReg_model=pickle.load(open('LogReg.pkl','rb'))
+svm_model=pickle.load(open('SVM.pkl','rb'))
 DecisionTree_model=pickle.load(open('DecisionTree.pkl','rb'))
 NaiveBayes_model=pickle.load(open('NaiveBayes.pkl','rb'))
 RF_model=pickle.load(open('RF.pkl','rb'))
@@ -15,7 +15,7 @@ def main():
     st.title("Crop Recommendation using ML and IOT")
     
 
-    activities=['Naive Bayes (Accuracy: 98.86%)','Logistic Regression (Accuracy: 90.68%)','SVM (Accuracy: 97.72%)','Random Forest (Accuracy: 99.54%)']
+    activities=['Naive Bayes (Accuracy: 98.86%)','Decision Tree (Accuracy: 90.68%)','SVM (Accuracy: 97.72%)','Random Forest (Accuracy: 99.54%)']
     option=st.sidebar.selectbox("Choose model?",activities)
     st.subheader(option)
     sn=st.slider('NITROGEN (N)', 0.0, 200.0)
@@ -27,11 +27,11 @@ def main():
     pr=st.slider('RAINFALL', 0.0, 300.0)
     inputs=[[sn,sp,pk,pt,phu,pPh,pr]]
     if st.button('Predict'):
-        if option=='Logistic Regression':
-            st.success(classify(LogReg_model.predict(inputs)))
-        elif option=='Decision Tree':
+        if option=='SVM (Accuracy: 97.72%)':
+            st.success(classify(svm_model.predict(inputs)))
+        elif option=='Decision Tree (Accuracy: 90.68%)':
             st.success(classify(DecisionTree_model.predict(inputs)))
-        elif option=='Naive Bayes':
+        elif option=='Naive Bayes (Accuracy: 98.86%)':
             st.success(classify(NaiveBayes_model.predict(inputs)))
         else:
             st.success(classify(RF_model.predict(inputs)))   
