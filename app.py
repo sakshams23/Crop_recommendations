@@ -8,13 +8,6 @@ import google.generativeai as genai
 # Load environment variables
 load_dotenv()
 
-# Configure Google API Key
-api_key = os.getenv("GOOGLE_API_KEY")
-if not api_key:
-    st.error("Google API key is not set. Check your .env file or environment variables.")
-else:
-    genai.configure(api_key=api_key)
-
 # Load ML models
 svm_model = pickle.load(open('SVM.pkl', 'rb'))
 DecisionTree_model = pickle.load(open('DecisionTree.pkl', 'rb'))
@@ -29,6 +22,13 @@ def classify(answer):
 def get_gemini_response(input_text, image_data, prompt):
     if not input_text or not image_data or not prompt:
         raise ValueError("All parameters (input_text, image_data, and prompt) must be non-empty.")
+    
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        st.error("Google API key is not set. Check your .env file or environment variables.")
+        return None
+
+    genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel('gemini-1.5-flash-002')
     response = model.generate_content([input_text, image_data[0], prompt])
@@ -45,18 +45,6 @@ def input_image_setup(uploaded_file):
         return image_parts
     else:
         raise FileNotFoundError("No file uploaded")
-
-# Main app
-def main():
-    st.set_page_config(page_title="Crop Recommendation and Plant Analysis")
-
-    st.title("🌱 Smart Agriculture System")
-    app_mode = st.sidebar.selectbox("Select Feature", ["Crop Recommendation", "Plant Disease Detection"])
-
-    if app_mode == "Crop Recommendation":
-        crop_recommendation()
-    elif app_mode == "Plant Disease Detection":
-        plant_disease_detection()
 
 # Crop Recommendation App
 def crop_recommendation():
@@ -118,13 +106,26 @@ def plant_disease_detection():
                 """
 
                 response = get_gemini_response(input_text, image_data, input_prompt)
-                st.subheader("The Response is:")
-                st.write(response)
+                if response:
+                    st.subheader("The Response is:")
+                    st.write(response)
 
             except FileNotFoundError:
                 st.error("Please upload an image.")
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
+
+# Main app
+def main():
+    st.set_page_config(page_title="Crop Recommendation and Plant Analysis")
+
+    st.title("🌱 Smart Agriculture System")
+    app_mode = st.sidebar.selectbox("Select Feature", ["Crop Recommendation", "Plant Disease Detection"])
+
+    if app_mode == "Crop Recommendation":
+        crop_recommendation()
+    elif app_mode == "Plant Disease Detection":
+        plant_disease_detection()
 
 if __name__ == '__main__':
     main()
